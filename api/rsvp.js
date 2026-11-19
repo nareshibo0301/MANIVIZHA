@@ -2,6 +2,7 @@ const { ensureSchema, getSql } = require("./_db");
 const { json } = require("./_http");
 const { normalizePhone } = require("./_responses");
 const { sameOrigin } = require("./_auth");
+const { syncResponses, toSheetResponse } = require("./_google-sheets");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -28,11 +29,22 @@ module.exports = async function handler(req, res) {
   try {
     const sql = getSql();
     await ensureSchema(sql);
-    await sql`
+    const [savedResponse] = await sql`
       INSERT INTO responses (name, phone, phone_normalized, attending)
       VALUES (${name}, ${phone}, ${normalizedPhone}, ${attending})
+      RETURNING id, name, phone, phone_normalized, attending, created_at
     `;
-    return json(res, 201, { ok: true });
+    let sheetSyncMessage;
+    try {
+      const result = await syncResponses([toSheetResponse(savedResponse)]);
+      if (!result.configured) {
+        sheetSyncMessage = "Your reply is saved, but the spreadsheet has not been connected yet.";
+      }
+    } catch (error) {
+      console.error("Could not sync an RSVP response to Google Sheets.", error);
+      sheetSyncMessage = "Your reply is saved, but the spreadsheet update is pending. The organizer can safely retry it.";
+    }
+    return json(res, 201, { ok: true, sheetSynced: !sheetSyncMessage, sheetSyncMessage });
   } catch (error) {
     console.error("Could not save RSVP response.", error);
     return json(res, 500, { error: "We could not save your response. Please try again." });

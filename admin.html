@@ -101,6 +101,7 @@
           <h1 class="brand">Response dashboard</h1>
         </div>
         <div class="toolbar">
+          <button class="button secondary" id="sync-sheet" type="button">Sync sheet</button>
           <button class="button secondary" id="refresh" type="button">Refresh</button>
           <button class="button" id="logout" type="button">Sign out</button>
         </div>
@@ -283,6 +284,19 @@
     });
 
     $("refresh").addEventListener("click", loadResponses);
+    $("sync-sheet").addEventListener("click", async () => {
+      const button = $("sync-sheet");
+      button.disabled = true;
+      dashboardMessage.textContent = "Syncing responses to Google Sheets…";
+      try {
+        const result = await requestJson("/api/admin/sync-sheets", { method: "POST" });
+        dashboardMessage.textContent = `Sheet sync complete: ${result.inserted} added, ${result.skipped} already present.`;
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
     $("include-duplicates").addEventListener("change", loadResponses);
     $("search").addEventListener("input", renderRows);
     $("attendance-filter").addEventListener("change", renderRows);

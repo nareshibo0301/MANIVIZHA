@@ -325,6 +325,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
     if (nameBad || phoneBad || choiceBad) return;
 
     btn.disabled = true; btn.textContent = "Sending…";
+    let sheetSyncMessage = "";
     try {
       const response = await fetch("/api/rsvp", {
         method: "POST",
@@ -338,6 +339,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
         throw new Error("We couldn’t save your response. Please try again.");
       }
       if (!response.ok) throw new Error(result.error || "We couldn’t save your response.");
+      if (result.sheetSynced === false) sheetSyncMessage = result.sheetSyncMessage || "";
     } catch (error) {
       btn.disabled = false; btn.textContent = "Send my reply";
       alert(error.message || "We couldn’t send your response. Please check your connection and try again.");
@@ -346,8 +348,9 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
     const first = name.split(/\s+/)[0], yes = attending === "Yes";
     $("mark").textContent = yes ? "✓" : "♡";
     $("done-title").textContent = yes ? `We’re delighted you’ll celebrate with us, ${first}!` : `We’ll miss you, ${first}.`;
-    $("done-text").textContent = yes ? "We can’t wait to celebrate together\non 2 Dec 2026."
-                                   : "Thank you for letting us know. We hope to celebrate together another time.";
+    const confirmation = yes ? "We can’t wait to celebrate together\non 2 Dec 2026."
+                             : "Thank you for letting us know. We hope to celebrate together another time.";
+    $("done-text").textContent = sheetSyncMessage ? `${confirmation}\n\n${sheetSyncMessage}` : confirmation;
     $("card").classList.add("sent");
   });
 
