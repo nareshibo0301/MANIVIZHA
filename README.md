@@ -14,6 +14,8 @@ Invitation and RSVP site with a password-protected response dashboard.
 5. Deploy. The database table and index are created automatically when the first response or dashboard request reaches the API.
 6. Open `/admin` on the deployed site and sign in with `ADMIN_PASSWORD`.
 
+The invitation page includes Open Graph and Twitter metadata for link previews. The preview artwork is `og-image.png`; social apps may cache a previous preview, so use their link-preview debugger or share a changed URL when refreshing it.
+
 Install dependencies with `npm install`. For local Vercel development, put the environment values in an untracked `.env.local` file and run `npx vercel dev`.
 
 ## Responses and duplicates
