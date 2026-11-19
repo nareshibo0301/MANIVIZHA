@@ -92,6 +92,23 @@ test("Apps Script rejects requests with an invalid webhook secret", () => {
   assert.equal(rows.length, 0);
 });
 
+test("Apps Script accepts RSVP responses without a phone number", () => {
+  const { context, rows, secret } = createAppsScriptContext();
+  context.setup();
+  const response = {
+    responseId: "43",
+    createdAt: "2026-12-01T10:00:00.000Z",
+    name: "Guest",
+    phone: "",
+    phoneNormalized: "",
+    attending: "Yes"
+  };
+
+  assert.deepEqual(post(context, secret, [response]), { ok: true, inserted: 1, skipped: 0 });
+  assert.equal(rows[1][3], "");
+  assert.equal(rows[1][4], "");
+});
+
 test("Apps Script GET endpoint provides a health check", () => {
   const { context } = createAppsScriptContext();
   const output = context.doGet();

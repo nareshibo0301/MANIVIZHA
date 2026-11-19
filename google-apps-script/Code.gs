@@ -103,11 +103,16 @@ function getResponseSheet_() {
 function validateResponse_(response) {
   if (!response || typeof response !== "object") return null;
   const { responseId, createdAt, name, phone, phoneNormalized, attending } = response;
+  const validPhone = typeof phone === "string" && (
+    phone === ""
+      ? phoneNormalized === ""
+      : /^[+\d\s()-]{7,30}$/.test(phone) &&
+        typeof phoneNormalized === "string" && /^\d{7,15}$/.test(phoneNormalized)
+  );
   if (typeof responseId !== "string" || !/^\d+$/.test(responseId) ||
       typeof createdAt !== "string" || Number.isNaN(Date.parse(createdAt)) ||
       typeof name !== "string" || name.trim().length < 2 || name.length > 120 ||
-      typeof phone !== "string" || !/^[+\d\s()-]{7,30}$/.test(phone) ||
-      typeof phoneNormalized !== "string" || !/^\d{7,15}$/.test(phoneNormalized) ||
+      !validPhone ||
       !["Yes", "No"].includes(attending)) {
     return null;
   }

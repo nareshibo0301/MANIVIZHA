@@ -124,7 +124,7 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(235,
 .invalid input{border-color:var(--err)}
 .invalid>.error,fieldset.invalid>.error{display:block}
 fieldset{border:0;padding:0;margin:0 0 24px}
-.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{display:grid;grid-template-columns:1fr;gap:10px}
 .choice input{position:absolute;opacity:0;pointer-events:none}
 .choice label{margin:0;padding:13px 10px;text-align:center;cursor:pointer;border-radius:12px;border:1.5px solid var(--line);
   background:#fff;font-size:1rem;color:var(--muted);transition:all .2s}
@@ -241,19 +241,18 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
         <span class="error">Please enter your name.</span>
       </div>
       <div class="field" id="f-phone">
-        <label for="phone">Phone number</label>
+        <label for="phone">Phone number (optional)</label>
         <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="+91 00000 00000">
-        <span class="error">Please enter a valid phone number.</span>
+        <span class="error">Enter a valid phone number or leave it blank.</span>
       </div>
       <fieldset id="f-attend">
-        <span class="legend" id="q">Will you join us for the celebration?</span>
+        <span class="legend" id="q">Please confirm your RSVP</span>
         <div class="choice" role="radiogroup" aria-labelledby="q">
-          <input type="radio" id="yes" name="attending" value="Yes"><label for="yes">Yes, I’ll be there</label>
-          <input type="radio" id="no" name="attending" value="No"><label for="no">I can’t make it</label>
+          <input type="radio" id="yes" name="attending" value="Yes"><label for="yes">RSVP Confirmed</label>
         </div>
-        <span class="error">Please choose an option.</span>
+        <span class="error">Please confirm your RSVP.</span>
       </fieldset>
-      <button type="submit" class="send" id="submit">Send my reply</button>
+      <button type="submit" class="send" id="submit">Confirm RSVP</button>
     </form>
 
     <div class="done" id="done" role="status" aria-live="polite">
@@ -334,7 +333,9 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
     e.preventDefault();
     const name = form.name.value.trim(), phone = form.phone.value.trim(), attending = form.attending.value;
     const nameBad = name.length < 2;
-    const phoneBad = phone.replace(/\D/g, "").length < 7 || !/^[+\d\s()-]+$/.test(phone);
+    const phoneDigits = phone.replace(/\D/g, "").length;
+    const phoneBad = phone !== "" &&
+      (phoneDigits < 7 || phoneDigits > 15 || !/^[+\d\s()-]+$/.test(phone));
     const choiceBad = !attending;
     flag("f-name", nameBad); flag("f-phone", phoneBad); flag("f-attend", choiceBad);
     if (nameBad || phoneBad || choiceBad) return;
@@ -356,15 +357,14 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
       if (!response.ok) throw new Error(result.error || "We couldn’t save your response.");
       if (result.sheetSynced === false) sheetSyncMessage = result.sheetSyncMessage || "";
     } catch (error) {
-      btn.disabled = false; btn.textContent = "Send my reply";
+      btn.disabled = false; btn.textContent = "Confirm RSVP";
       alert(error.message || "We couldn’t send your response. Please check your connection and try again.");
       return;
     }
-    const first = name.split(/\s+/)[0], yes = attending === "Yes";
-    $("mark").textContent = yes ? "✓" : "♡";
-    $("done-title").textContent = yes ? `We’re delighted you’ll celebrate with us, ${first}!` : `We’ll miss you, ${first}.`;
-    const confirmation = yes ? "We can’t wait to celebrate together\non 2 Dec 2026."
-                             : "Thank you for letting us know. We hope to celebrate together another time.";
+    const first = name.split(/\s+/)[0];
+    $("mark").textContent = "✓";
+    $("done-title").textContent = `We’re delighted you’ll celebrate with us, ${first}!`;
+    const confirmation = "We can’t wait to celebrate together\non 2 Dec 2026.";
     $("done-text").textContent = sheetSyncMessage ? `${confirmation}\n\n${sheetSyncMessage}` : confirmation;
     $("card").classList.add("sent");
   });

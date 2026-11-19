@@ -1,6 +1,6 @@
 const { ensureSchema, getSql } = require("./_db");
 const { json } = require("./_http");
-const { normalizePhone } = require("./_responses");
+const { parseRsvpInput } = require("./_rsvp-input");
 const { sameOrigin } = require("./_auth");
 const { syncResponses, toSheetResponse } = require("./_google-sheets");
 
@@ -15,16 +15,11 @@ module.exports = async function handler(req, res) {
     return json(res, 415, { error: "Send the response as JSON." });
   }
 
-  const input = req.body && typeof req.body === "object" ? req.body : {};
-  const name = typeof input.name === "string" ? input.name.trim() : "";
-  const phone = typeof input.phone === "string" ? input.phone.trim() : "";
-  const attending = input.attending;
-  const normalizedPhone = normalizePhone(phone);
-  if (name.length < 2 || name.length > 120 || normalizedPhone.length < 7 ||
-      normalizedPhone.length > 15 || !/^[+\d\s()-]+$/.test(phone) ||
-      !["Yes", "No"].includes(attending)) {
-    return json(res, 400, { error: "Please provide a valid name, phone number, and attendance choice." });
+  const responseInput = parseRsvpInput(req.body);
+  if (!responseInput) {
+    return json(res, 400, { error: "Please provide a valid name, optional phone number, and RSVP confirmation." });
   }
+  const { name, phone, normalizedPhone, attending } = responseInput;
 
   try {
     const sql = getSql();

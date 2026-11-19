@@ -20,7 +20,7 @@ Install dependencies with `npm install`. For local Vercel development, put the e
 
 ## Responses and duplicates
 
-RSVPs are stored in Neon; the Vercel filesystem is not used for persistence. The dashboard shows total submissions, unique guests, duplicate submissions, and attending guests. Phone numbers are normalized for duplicate detection. By default, only the newest response for each normalized phone number is listed; enable **Include duplicate submissions** to see every submission and which ones are duplicates. All records remain stored.
+RSVPs are stored in Neon; the Vercel filesystem is not used for persistence. Guests confirm their RSVP, and phone number is optional. The dashboard shows total submissions, unique guests, duplicate submissions, and confirmed guests. Provided phone numbers are normalized for duplicate detection; responses without a phone are counted individually. By default, only the newest response for each provided normalized phone number is listed; enable **Include duplicate submissions** to see every submission and which ones are duplicates. All records remain stored.
 
 ## Mirror responses to Google Sheets
 

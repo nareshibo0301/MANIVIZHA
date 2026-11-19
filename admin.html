@@ -111,7 +111,7 @@
         <article class="stat"><p class="stat-label">Total responses</p><p class="stat-value" id="total-responses">0</p></article>
         <article class="stat"><p class="stat-label">Unique guests</p><p class="stat-value" id="unique-guests">0</p></article>
         <article class="stat"><p class="stat-label">Duplicate submissions</p><p class="stat-value" id="duplicate-responses">0</p></article>
-        <article class="stat"><p class="stat-label">Attending</p><p class="stat-value" id="attending-yes">0</p></article>
+        <article class="stat"><p class="stat-label">RSVP Confirmed</p><p class="stat-value" id="attending-yes">0</p></article>
       </section>
 
       <section class="panel" aria-label="RSVP response list">
@@ -124,7 +124,7 @@
             <label for="attendance-filter">Attendance</label>
             <select id="attendance-filter">
               <option value="all">Everyone</option>
-              <option value="Yes">Attending</option>
+              <option value="Yes">RSVP Confirmed</option>
               <option value="No">Not attending</option>
             </select>
           </div>
@@ -137,7 +137,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th scope="col">Name</th><th scope="col">Phone</th><th scope="col">Attendance</th><th scope="col">Submitted</th><th scope="col">Duplicate status</th></tr>
+              <tr><th scope="col">Name</th><th scope="col">Phone</th><th scope="col">RSVP</th><th scope="col">Submitted</th><th scope="col">Duplicate status</th></tr>
             </thead>
             <tbody id="response-rows"></tbody>
           </table>
@@ -194,8 +194,9 @@
       const digits = query.replace(/\D/g, "");
       const attendance = $("attendance-filter").value;
       const visible = responses.filter(item => {
+        const phone = item.phone || "";
         const matchesSearch = !query || item.name.toLowerCase().includes(query) ||
-          item.phone.toLowerCase().includes(query) || (digits && item.phone.replace(/\D/g, "").includes(digits));
+          phone.toLowerCase().includes(query) || (digits && phone.replace(/\D/g, "").includes(digits));
         return matchesSearch && (attendance === "all" || item.attending === attendance);
       });
 
@@ -211,11 +212,11 @@
         for (const item of visible) {
           const row = document.createElement("tr");
           addCell(row, item.name);
-          addCell(row, item.phone);
+          addCell(row, item.phone || "Not provided");
           const attendanceCell = addCell(row, "");
           const attendanceBadge = document.createElement("span");
           attendanceBadge.className = `pill ${item.attending === "Yes" ? "yes" : "no"}`;
-          attendanceBadge.textContent = item.attending === "Yes" ? "Attending" : "Not attending";
+          attendanceBadge.textContent = item.attending === "Yes" ? "RSVP Confirmed" : "Not attending";
           attendanceCell.appendChild(attendanceBadge);
           const submittedAt = new Date(item.createdAt);
           addCell(row, Number.isNaN(submittedAt.getTime()) ? item.createdAt : submittedAt.toLocaleString());

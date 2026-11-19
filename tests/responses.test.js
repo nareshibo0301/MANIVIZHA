@@ -28,3 +28,19 @@ test("dashboard defaults to the latest response per phone and can include duplic
     attendingNo: 1
   });
 });
+
+test("responses without phone numbers are counted separately, not as duplicates", () => {
+  const rows = [
+    { id: 2, name: "First guest", phone: "", phone_normalized: "", attending: "Yes", created_at: "2026-12-01T10:00:00Z" },
+    { id: 1, name: "Second guest", phone: "", phone_normalized: "", attending: "Yes", created_at: "2026-12-01T09:00:00Z" }
+  ];
+
+  assert.equal(buildDashboardRows(rows, false).length, 2);
+  assert.deepEqual(getResponseStats(rows), {
+    totalResponses: 2,
+    uniqueGuests: 2,
+    duplicateResponses: 0,
+    attendingYes: 2,
+    attendingNo: 0
+  });
+});
