@@ -155,11 +155,9 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
 .zoom{right:14px;bottom:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:1rem}
 .photo .in:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .language-switch{display:none}
-.language-choice{border:1px solid var(--line);border-radius:999px;background:rgba(255,250,240,.92);color:var(--brown2);
-  padding:4px 11px;font:600 .74rem var(--sans);box-shadow:0 2px 8px rgba(74,46,20,.18);
-  transition:background .2s,color .2s,box-shadow .2s}
-.language-choice span{margin-left:3px}
-.language-choice[aria-pressed=true]{border-color:var(--brown);background:var(--brown);color:var(--cream)}
+.language-choice{min-width:32px;height:28px;padding:4px 8px;border:0;border-radius:999px;background:transparent;color:var(--brown2);
+  font:600 .78rem/1 var(--sans);transition:background .2s,color .2s}
+.language-choice[aria-pressed=true]{background:var(--brown);color:var(--cream)}
 .language-choice:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .lb{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px;background:rgba(50,30,10,.86);cursor:zoom-out}
 .lb[hidden]{display:none}
@@ -179,7 +177,9 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
   .photo.l .image-flipper img{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
   .photo.l .image-flipper .invite-back{display:block;transform:rotateY(180deg)}
   .photo.r{display:none}
-  .language-switch{display:flex;justify-content:center;gap:8px}
+  .language-switch{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:20;
+    display:flex;align-items:center;gap:2px;padding:3px;border:1px solid rgba(185,131,54,.45);border-radius:999px;
+    background:rgba(255,250,240,.94);box-shadow:0 3px 12px rgba(74,46,20,.2);backdrop-filter:blur(8px)}
   .card{grid-column:1;grid-row:auto;order:2}
 }
 @media (prefers-reduced-motion:reduce){
@@ -206,8 +206,8 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
   <div class="invite-display">
     <figure class="photo l"><div class="in" id="main-invitation" tabindex="0" role="button" aria-label="Enlarge the Tamil invitation"><div class="image-flipper" id="invite-flipper"><img class="invite-front" src="WhatsApp%20Image%202026-11-19%20at%206.28.20%20PM.jpeg" alt="Manivizha invitation in Tamil"><img class="invite-back" src="WhatsApp%20Image%202026-11-19%20at%206.28.19%20PM.jpeg" alt="Manivizha invitation in English" aria-hidden="true"></div><span class="tag" id="language-tag">Tamil</span><span class="zoom" aria-hidden="true">⤢</span></div></figure>
     <div class="language-switch" role="group" aria-label="Invitation language">
-      <button class="language-choice" type="button" data-language="tamil" aria-label="Show Tamil invitation" aria-pressed="true">அ <span>தமிழ்</span></button>
-      <button class="language-choice" type="button" data-language="english" aria-label="Show English invitation" aria-pressed="false">A <span>English</span></button>
+      <button class="language-choice" type="button" data-language="tamil" aria-label="Show Tamil invitation" aria-pressed="true">அ</button>
+      <button class="language-choice" type="button" data-language="english" aria-label="Show English invitation" aria-pressed="false">A</button>
     </div>
     <figure class="photo r"><div class="in" tabindex="0" role="button" aria-label="Enlarge the English invitation"><img src="WhatsApp%20Image%202026-11-19%20at%206.28.19%20PM.jpeg" alt="Manivizha invitation in English"><span class="tag">English</span><span class="zoom" aria-hidden="true">⤢</span></div></figure>
   </div>
