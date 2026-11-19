@@ -252,7 +252,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
         </div>
         <span class="error">Please confirm your RSVP.</span>
       </fieldset>
-      <button type="submit" class="send" id="submit">Confirm RSVP</button>
+      <button type="submit" class="send" id="submit">Send Reply</button>
     </form>
 
     <div class="done" id="done" role="status" aria-live="polite">
@@ -357,7 +357,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
       if (!response.ok) throw new Error(result.error || "We couldn’t save your response.");
       if (result.sheetSynced === false) sheetSyncMessage = result.sheetSyncMessage || "";
     } catch (error) {
-      btn.disabled = false; btn.textContent = "Confirm RSVP";
+      btn.disabled = false; btn.textContent = "Send Reply";
       alert(error.message || "We couldn’t send your response. Please check your connection and try again.");
       return;
     }
