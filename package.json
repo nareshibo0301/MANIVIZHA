@@ -1,0 +1,10 @@
+{
+  "name": "manivizha-rsvp",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  }
+}

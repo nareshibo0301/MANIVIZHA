@@ -226,9 +226,6 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
 <div class="lb" id="lb" hidden role="dialog" aria-label="Invitation preview"><img alt=""></div>
 
 <script>
-  // Optional: paste your form endpoint (Google Apps Script, Formspree, Supabase function, etc.)
-  const ENDPOINT = "";
-
   const $ = id => document.getElementById(id);
   const body = document.body, intro = $("intro");
 
@@ -279,15 +276,23 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
     if (nameBad || phoneBad || choiceBad) return;
 
     btn.disabled = true; btn.textContent = "Sending…";
-    if (ENDPOINT) {
+    try {
+      const response = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, attending })
+      });
+      let result;
       try {
-        await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, attending, submittedAt: new Date().toISOString() }) });
+        result = await response.json();
       } catch {
-        btn.disabled = false; btn.textContent = "Send my INVITE";
-        alert("We couldn’t send your INVITE. Please check your connection and try again.");
-        return;
+        throw new Error("We couldn’t save your response. Please try again.");
       }
+      if (!response.ok) throw new Error(result.error || "We couldn’t save your response.");
+    } catch (error) {
+      btn.disabled = false; btn.textContent = "Send my INVITE";
+      alert(error.message || "We couldn’t send your response. Please check your connection and try again.");
+      return;
     }
     const first = name.split(/\s+/)[0], yes = attending === "Yes";
     $("mark").textContent = yes ? "✓" : "♡";
