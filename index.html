@@ -202,14 +202,14 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
         <span class="error">Please enter a valid phone number.</span>
       </div>
       <fieldset id="f-attend">
-        <span class="legend" id="q">Are you attending the event?</span>
+        <span class="legend" id="q">Will you join us for the celebration?</span>
         <div class="choice" role="radiogroup" aria-labelledby="q">
-          <input type="radio" id="yes" name="attending" value="Yes"><label for="yes">Yes</label>
-          <input type="radio" id="no" name="attending" value="No"><label for="no">No</label>
+          <input type="radio" id="yes" name="attending" value="Yes"><label for="yes">Yes, I’ll be there</label>
+          <input type="radio" id="no" name="attending" value="No"><label for="no">I can’t make it</label>
         </div>
-        <span class="error">Please choose Yes or No.</span>
+        <span class="error">Please choose an option.</span>
       </fieldset>
-      <button type="submit" class="send" id="submit">Send my INVITE</button>
+      <button type="submit" class="send" id="submit">Send my reply</button>
     </form>
 
     <div class="done" id="done" role="status" aria-live="polite">
@@ -290,15 +290,15 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
       }
       if (!response.ok) throw new Error(result.error || "We couldn’t save your response.");
     } catch (error) {
-      btn.disabled = false; btn.textContent = "Send my INVITE";
+      btn.disabled = false; btn.textContent = "Send my reply";
       alert(error.message || "We couldn’t send your response. Please check your connection and try again.");
       return;
     }
     const first = name.split(/\s+/)[0], yes = attending === "Yes";
     $("mark").textContent = yes ? "✓" : "♡";
-    $("done-title").textContent = yes ? `We look forward to seeing you, ${first}.` : `You will be missed, ${first}.`;
-    $("done-text").textContent = yes ? "Your attendance is confirmed for 2 December at Maran Illam. It will be a pleasure to host you."
-                                     : "Thank you for letting us know. We hope to celebrate with you soon.";
+    $("done-title").textContent = yes ? `We’re delighted you’ll celebrate with us, ${first}!` : `We’ll miss you, ${first}.`;
+    $("done-text").textContent = yes ? "We can’t wait to celebrate together on 2 December at Maran Illam."
+                                   : "Thank you for letting us know. We hope to celebrate together another time.";
     $("card").classList.add("sent");
   });
 
