@@ -27,7 +27,7 @@ The Google Sheet is updated through a Google Apps Script web app. The script cre
 1. Open the spreadsheet and choose **Extensions → Apps Script**.
 2. Replace the editor contents with [`google-apps-script/Code.gs`](./google-apps-script/Code.gs), save, and run `setup()` once. Authorize the script when prompted; this creates the header row without overwriting existing tabs.
 3. In Apps Script **Project Settings → Script properties**, add `GOOGLE_SHEETS_WEBHOOK_SECRET`. Generate a unique value with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` and use the same value in Apps Script and Vercel.
-4. Choose **Deploy → New deployment → Web app**, set **Execute as** to yourself and access to **Anyone**, then deploy and authorize. Copy the web app URL ending in `/exec`.
+4. Choose **Deploy → New deployment → Web app**, set **Execute as** to yourself and access to **Anyone**, then deploy and authorize. Copy the deployed web app URL ending in `/exec` (not the spreadsheet URL or Apps Script editor URL). Opening that URL in a browser should show a JSON health message.
 5. In Vercel, add `GOOGLE_SHEETS_WEBHOOK_URL` (the `/exec` URL) and `GOOGLE_SHEETS_WEBHOOK_SECRET` (the generated value) for Production, then redeploy.
 6. Sign in to `/admin` and choose **Sync sheet** to copy existing Neon responses. New RSVPs are mirrored automatically. If Google Sheets is temporarily unavailable, the response remains saved in Neon and the dashboard's **Sync sheet** action can safely retry without adding duplicate rows.
 

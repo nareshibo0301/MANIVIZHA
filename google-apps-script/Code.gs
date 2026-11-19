@@ -15,6 +15,10 @@ function setup() {
   return "Responses sheet is ready.";
 }
 
+function doGet() {
+  return jsonOutput_({ ok: true, service: "Manivizha RSVP Google Sheets webhook" });
+}
+
 function doPost(event) {
   const properties = PropertiesService.getScriptProperties();
   const configuredSecret = properties.getProperty("GOOGLE_SHEETS_WEBHOOK_SECRET");

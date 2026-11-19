@@ -32,11 +32,15 @@ async function syncResponses(responses) {
       signal: AbortSignal.timeout(15000)
     });
 
+    const contentType = response.headers.get("content-type") || "unknown content type";
     let result;
     try {
-      result = await response.json();
+      result = JSON.parse(await response.text());
     } catch {
-      throw new Error("Google Sheets returned an invalid response.");
+      throw new Error(
+        `Google Apps Script returned non-JSON (HTTP ${response.status}, ${contentType}). ` +
+        "Use the deployed web app URL ending in /exec and allow access to Anyone."
+      );
     }
     if (!response.ok || result.ok !== true) {
       throw new Error(typeof result.error === "string" ? result.error : "Google Sheets rejected the sync.");

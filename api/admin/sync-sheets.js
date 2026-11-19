@@ -24,6 +24,9 @@ module.exports = async function handler(req, res) {
     return json(res, 200, { ok: true, total: rows.length, ...result });
   } catch (error) {
     console.error("Could not sync RSVP responses to Google Sheets.", error);
-    return json(res, 502, { error: "Google Sheets sync failed. You can safely retry it from this dashboard." });
+    const message = error.message.startsWith("Google Apps Script returned non-JSON")
+      ? error.message
+      : "Google Sheets sync failed. You can safely retry it from this dashboard.";
+    return json(res, 502, { error: message });
   }
 };

@@ -91,3 +91,12 @@ test("Apps Script rejects requests with an invalid webhook secret", () => {
   assert.deepEqual(response, { ok: false, error: "Unauthorized." });
   assert.equal(rows.length, 0);
 });
+
+test("Apps Script GET endpoint provides a health check", () => {
+  const { context } = createAppsScriptContext();
+  const output = context.doGet();
+  assert.deepEqual(JSON.parse(output.text), {
+    ok: true,
+    service: "Manivizha RSVP Google Sheets webhook"
+  });
+});

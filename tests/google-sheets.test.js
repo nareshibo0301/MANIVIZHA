@@ -30,7 +30,12 @@ test("Google Sheets sync sends server-side credentials and returns append totals
   let request;
   global.fetch = async (url, options) => {
     request = { url, options };
-    return { ok: true, json: async () => ({ ok: true, inserted: 2, skipped: 1 }) };
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      text: async () => JSON.stringify({ ok: true, inserted: 2, skipped: 1 })
+    };
   };
 
   const result = await syncResponses([{ responseId: "1" }, { responseId: "2" }, { responseId: "3" }]);
@@ -45,7 +50,26 @@ test("Google Sheets sync sends server-side credentials and returns append totals
 test("Google Sheets sync surfaces a rejected webhook response", async () => {
   process.env.GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/test/exec";
   process.env.GOOGLE_SHEETS_WEBHOOK_SECRET = "x".repeat(32);
-  global.fetch = async () => ({ ok: true, json: async () => ({ ok: false, error: "Unauthorized." }) });
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: () => "application/json" },
+    text: async () => JSON.stringify({ ok: false, error: "Unauthorized." })
+  });
 
   await assert.rejects(syncResponses([{ responseId: "1" }]), /Unauthorized/);
+});
+
+test("Google Sheets sync explains a non-JSON Apps Script response", async () => {
+  process.env.GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/test/exec";
+  process.env.GOOGLE_SHEETS_WEBHOOK_SECRET = "x".repeat(32);
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    headers: { get: () => "text/html" },
+    text: async () => "<html>Sign in</html>"
+  });
+
+  await assert.rejects(syncResponses([{ responseId: "1" }]), /HTTP 200, text\/html/);
+  await assert.rejects(syncResponses([{ responseId: "1" }]), /ending in \/exec/);
 });
