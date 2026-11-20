@@ -219,7 +219,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
 
 <main class="stage">
   <div class="invite-display">
-    <figure class="photo l"><div class="in" id="main-invitation" tabindex="0" role="button" aria-label="Enlarge the Tamil invitation"><div class="image-flipper" id="invite-flipper"><img class="invite-front" src="WhatsApp%20Image%202026-11-19%20at%206.28.20%20PM.jpeg" alt="Manivizha invitation in Tamil"><img class="invite-back" src="WhatsApp%20Image%202026-11-19%20at%206.28.19%20PM.jpeg" alt="Manivizha invitation in English" aria-hidden="true"></div><span class="tag" id="language-tag">Tamil</span><span class="zoom" aria-hidden="true">⤢</span></div></figure>
+    <figure class="photo l"><div class="in" id="main-invitation" tabindex="0" role="button" aria-label="Enlarge the Tamil invitation"><div class="image-flipper" id="invite-flipper"><img class="invite-front" src="tamil%20invite%202.jpg.jpeg" alt="Manivizha invitation in Tamil"><img class="invite-back" src="WhatsApp%20Image%202026-11-19%20at%206.28.19%20PM.jpeg" alt="Manivizha invitation in English" aria-hidden="true"></div><span class="tag" id="language-tag">Tamil</span><span class="zoom" aria-hidden="true">⤢</span></div></figure>
     <div class="language-switch" role="group" aria-label="Invitation language">
       <button class="language-choice" type="button" data-language="tamil" aria-label="Show Tamil invitation" aria-pressed="true">அ</button>
       <button class="language-choice" type="button" data-language="english" aria-label="Show English invitation" aria-pressed="false">A</button>
@@ -229,7 +229,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
 
   <section class="card" id="card" aria-labelledby="title">
     <div class="head">
-      <h1 id="title">Manivizha</h1>
+      <h1 id="title">RSVP</h1>
       <div class="rule"><b></b><s></s><b></b></div>
       <p class="when"><strong>2 December 2026 · 9:00 AM</strong></p>
     </div>
@@ -241,18 +241,11 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
         <span class="error">Please enter your name.</span>
       </div>
       <div class="field" id="f-phone">
-        <label for="phone">Phone number (optional)</label>
+        <label for="phone">Phone number </label>
         <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="+91 00000 00000">
         <span class="error">Enter a valid phone number or leave it blank.</span>
       </div>
-      <fieldset id="f-attend">
-        <span class="legend" id="q">Please confirm your RSVP</span>
-        <div class="choice" role="radiogroup" aria-labelledby="q">
-          <input type="radio" id="yes" name="attending" value="Yes"><label for="yes">RSVP Confirmed</label>
-        </div>
-        <span class="error">Please confirm your RSVP.</span>
-      </fieldset>
-      <button type="submit" class="send" id="submit">Send Reply</button>
+      <button type="submit" class="send" id="submit">Confirm</button>
     </form>
 
     <div class="done" id="done" role="status" aria-live="polite">
@@ -331,14 +324,13 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
 
   form.addEventListener("submit", async e => {
     e.preventDefault();
-    const name = form.name.value.trim(), phone = form.phone.value.trim(), attending = form.attending.value;
+    const name = form.name.value.trim(), phone = form.phone.value.trim(), attending = "Yes";
     const nameBad = name.length < 2;
     const phoneDigits = phone.replace(/\D/g, "").length;
     const phoneBad = phone !== "" &&
       (phoneDigits < 7 || phoneDigits > 15 || !/^[+\d\s()-]+$/.test(phone));
-    const choiceBad = !attending;
-    flag("f-name", nameBad); flag("f-phone", phoneBad); flag("f-attend", choiceBad);
-    if (nameBad || phoneBad || choiceBad) return;
+    flag("f-name", nameBad); flag("f-phone", phoneBad);
+    if (nameBad || phoneBad) return;
 
     btn.disabled = true; btn.textContent = "Sending…";
     let sheetSyncMessage = "";
@@ -357,7 +349,7 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
       if (!response.ok) throw new Error(result.error || "We couldn’t save your response.");
       if (result.sheetSynced === false) sheetSyncMessage = result.sheetSyncMessage || "";
     } catch (error) {
-      btn.disabled = false; btn.textContent = "Send Reply";
+      btn.disabled = false; btn.textContent = "Confirm Attendance";
       alert(error.message || "We couldn’t send your response. Please check your connection and try again.");
       return;
     }
@@ -370,7 +362,6 @@ body.open .rule b{animation:draw 1s var(--ease) 1.1s both}
   });
 
   ["name", "phone"].forEach(id => $(id).addEventListener("input", e => e.target.closest(".field").classList.remove("invalid")));
-  form.querySelectorAll("input[name=attending]").forEach(r => r.addEventListener("change", () => $("f-attend").classList.remove("invalid")));
 </script>
 </body>
 </html>
