@@ -377,32 +377,49 @@
       fileInput.addEventListener("change", () => {
         saveButton.disabled = true;
         preview.hidden = true;
+        previewButton.textContent = "Preview";
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         previewUrl = "";
         preview.removeAttribute("src");
         status.className = "image-status";
         status.textContent = "";
-      });
-
-      previewButton.addEventListener("click", () => {
         const file = fileInput.files[0];
-        status.className = "image-status";
-        if (!file) {
-          status.textContent = "Choose a PNG image before previewing.";
-          status.classList.add("error");
-          return;
-        }
-        if (file.type !== "image/png" || file.size > 15 * 1024 * 1024) {
+        if (!file) return;
+        if ((file.type && file.type !== "image/png") || file.size > 15 * 1024 * 1024) {
           status.textContent = "Choose a PNG image no larger than 15 MB.";
           status.classList.add("error");
           return;
         }
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
+
         previewUrl = URL.createObjectURL(file);
+        const selectedUrl = previewUrl;
+        preview.onload = () => {
+          if (previewUrl !== selectedUrl) return;
+          saveButton.disabled = false;
+          status.textContent = "Preview shown below. Save when it looks right.";
+        };
+        preview.onerror = () => {
+          if (previewUrl !== selectedUrl) return;
+          saveButton.disabled = true;
+          status.textContent = "This file could not be previewed as an image.";
+          status.classList.add("error");
+        };
         preview.src = previewUrl;
         preview.hidden = false;
-        saveButton.disabled = false;
-        status.textContent = "Preview the image below, then save it to GitHub.";
+        previewButton.textContent = "Hide preview";
+        status.textContent = "Loading preview…";
+      });
+
+      previewButton.addEventListener("click", () => {
+        status.className = "image-status";
+        if (!previewUrl) {
+          status.textContent = "Choose a PNG image before previewing.";
+          status.classList.add("error");
+          return;
+        }
+        preview.hidden = !preview.hidden;
+        previewButton.textContent = preview.hidden ? "Preview" : "Hide preview";
+        status.textContent = preview.hidden ? "" : "Preview shown below.";
       });
 
       editor.addEventListener("submit", async event => {
