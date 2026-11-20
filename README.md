@@ -14,6 +14,8 @@ Invitation and RSVP site with a password-protected response dashboard.
 5. Deploy. The database table and index are created automatically when the first response or dashboard request reaches the API.
 6. Open `/admin` on the deployed site and sign in with `ADMIN_PASSWORD`.
 
+The admin dashboard can replace the Tamil or English invitation image with a PNG up to 3 MB. To enable it, add a fine-grained GitHub token as the `GITHUB_TOKEN` environment variable in Vercel, granting **Contents: read and write** access to `nareshibo0301/MANIVIZHA`. `GITHUB_BRANCH` defaults to `main`. The token stays server-side; each upload creates a commit to the selected branch, which triggers a Vercel deployment when the repository is connected.
+
 The invitation page includes Open Graph and Twitter metadata for link previews. The preview artwork is `og-image.png`; social apps may cache a previous preview, so use their link-preview debugger or share a changed URL when refreshing it.
 
 Install dependencies with `npm install`. For local Vercel development, put the environment values in an untracked `.env.local` file and run `npx vercel dev`.
