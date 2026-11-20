@@ -56,7 +56,10 @@
     .invitation-editor .image-status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .88rem; }
     .invitation-editor .image-status.error { color: var(--red); }
     .invitation-editor .image-status.success { color: var(--green); }
-    .image-preview { width: auto; max-width: 100%; max-height: 320px; border: 1px solid var(--line); border-radius: 8px; object-fit: contain; }
+    .image-previews { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: start; }
+    .image-preview-tile { min-width: 0; margin: 0; }
+    .image-preview-tile figcaption { margin-bottom: 6px; color: var(--muted); font-size: .78rem; font-weight: 700; }
+    .image-preview, .current-image { display: block; width: 100%; max-height: 320px; border: 1px solid var(--line); border-radius: 8px; background: white; object-fit: contain; object-position: top center; }
     .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
     .stat { padding: 18px; }
     .stat-label { margin: 0 0 8px; color: var(--muted); font-size: .82rem; font-weight: 600; }
@@ -126,10 +129,19 @@
             <input id="invitation-image-tamil" type="file" accept="image/png,.png" required>
           </div>
           <div class="image-actions">
-            <button class="button secondary preview-invitation" type="button">Preview</button>
+            <button class="button secondary preview-invitation" type="button" disabled>Preview replacement</button>
             <button class="button save-invitation" type="submit" disabled>Save Tamil image to GitHub</button>
           </div>
-          <img class="image-preview" alt="Tamil invitation preview" hidden>
+          <div class="image-previews">
+            <figure class="image-preview-tile">
+              <figcaption>Current published image</figcaption>
+              <img class="current-image" data-asset="TAMIL.png" alt="Current published Tamil invitation">
+            </figure>
+            <figure class="image-preview-tile replacement-preview" hidden>
+              <figcaption>Replacement preview</figcaption>
+              <img class="image-preview" alt="Selected Tamil invitation image">
+            </figure>
+          </div>
           <p class="image-status" role="status" aria-live="polite"></p>
         </form>
         <form class="panel invitation-editor" data-language="english">
@@ -139,10 +151,19 @@
             <input id="invitation-image-english" type="file" accept="image/png,.png" required>
           </div>
           <div class="image-actions">
-            <button class="button secondary preview-invitation" type="button">Preview</button>
+            <button class="button secondary preview-invitation" type="button" disabled>Preview replacement</button>
             <button class="button save-invitation" type="submit" disabled>Save English image to GitHub</button>
           </div>
-          <img class="image-preview" alt="English invitation preview" hidden>
+          <div class="image-previews">
+            <figure class="image-preview-tile">
+              <figcaption>Current published image</figcaption>
+              <img class="current-image" data-asset="ENGLISH.png" alt="Current published English invitation">
+            </figure>
+            <figure class="image-preview-tile replacement-preview" hidden>
+              <figcaption>Replacement preview</figcaption>
+              <img class="image-preview" alt="Selected English invitation image">
+            </figure>
+          </div>
           <p class="image-status" role="status" aria-live="polite"></p>
         </form>
       </section>
@@ -370,14 +391,23 @@
       const fileInput = editor.querySelector('input[type="file"]');
       const previewButton = editor.querySelector(".preview-invitation");
       const saveButton = editor.querySelector(".save-invitation");
+      const currentImage = editor.querySelector(".current-image");
+      const replacement = editor.querySelector(".replacement-preview");
       const preview = editor.querySelector(".image-preview");
       const status = editor.querySelector(".image-status");
       let previewUrl = "";
 
+      currentImage.addEventListener("error", () => {
+        status.textContent = `Could not load the current published image (${currentImage.dataset.asset}).`;
+        status.className = "image-status error";
+      });
+      currentImage.src = `${currentImage.dataset.asset}?preview=${Date.now()}`;
+
       fileInput.addEventListener("change", () => {
         saveButton.disabled = true;
-        preview.hidden = true;
-        previewButton.textContent = "Preview";
+        previewButton.disabled = true;
+        previewButton.textContent = "Preview replacement";
+        replacement.hidden = true;
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         previewUrl = "";
         preview.removeAttribute("src");
@@ -405,8 +435,9 @@
           status.classList.add("error");
         };
         preview.src = previewUrl;
-        preview.hidden = false;
-        previewButton.textContent = "Hide preview";
+        replacement.hidden = false;
+        previewButton.disabled = false;
+        previewButton.textContent = "Hide replacement preview";
         status.textContent = "Loading preview…";
       });
 
@@ -417,9 +448,9 @@
           status.classList.add("error");
           return;
         }
-        preview.hidden = !preview.hidden;
-        previewButton.textContent = preview.hidden ? "Preview" : "Hide preview";
-        status.textContent = preview.hidden ? "" : "Preview shown below.";
+        replacement.hidden = !replacement.hidden;
+        previewButton.textContent = replacement.hidden ? "Preview replacement" : "Hide replacement preview";
+        status.textContent = replacement.hidden ? "" : "Replacement preview shown next to the current image.";
       });
 
       editor.addEventListener("submit", async event => {
