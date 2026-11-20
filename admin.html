@@ -47,14 +47,16 @@
     .message { min-height: 1.4em; margin: 12px 0 0; color: var(--red); font-size: .88rem; }
     .muted { color: var(--muted); }
     .toolbar { display: flex; gap: 10px; align-items: center; }
-    .invitation-editor { display: grid; grid-template-columns: minmax(180px, .7fr) minmax(220px, 1fr) auto; gap: 14px; align-items: end; padding: 18px; margin-bottom: 20px; }
-    .invitation-editor h2 { grid-column: 1 / -1; margin: 0; font: 600 1.5rem/1.1 "Cormorant Garamond", Georgia, serif; }
+    .invitation-editors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .invitation-editor { display: grid; align-content: start; gap: 14px; padding: 18px; }
+    .invitation-editor h2 { margin: 0; font: 600 1.5rem/1.1 "Cormorant Garamond", Georgia, serif; }
     .invitation-editor label { margin: 0 0 6px; }
-    .invitation-editor select, .invitation-editor input[type=file] { width: 100%; min-height: 44px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--brown); }
-    .invitation-editor .image-status { grid-column: 1 / -1; min-height: 1.4em; margin: 0; color: var(--muted); font-size: .88rem; }
+    .invitation-editor input[type=file] { width: 100%; min-height: 44px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--brown); }
+    .image-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .invitation-editor .image-status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .88rem; }
     .invitation-editor .image-status.error { color: var(--red); }
     .invitation-editor .image-status.success { color: var(--green); }
-    .image-preview { grid-column: 1 / -1; max-width: 180px; max-height: 240px; border: 1px solid var(--line); border-radius: 8px; object-fit: contain; }
+    .image-preview { width: auto; max-width: 100%; max-height: 320px; border: 1px solid var(--line); border-radius: 8px; object-fit: contain; }
     .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
     .stat { padding: 18px; }
     .stat-label { margin: 0 0 8px; color: var(--muted); font-size: .82rem; font-weight: 600; }
@@ -82,8 +84,7 @@
       .stat { padding: 14px; }
       .stat-value { font-size: 1.45rem; }
       .filters { grid-template-columns: 1fr; }
-      .invitation-editor { grid-template-columns: 1fr; }
-      .invitation-editor h2, .invitation-editor .image-status, .image-preview { grid-column: 1; }
+      .invitation-editors { grid-template-columns: 1fr; }
       .topbar { align-items: flex-start; }
       .toolbar { flex-direction: column; align-items: stretch; }
       th, td { padding: 11px 12px; }
@@ -117,23 +118,34 @@
         </div>
       </header>
 
-      <form class="panel invitation-editor" id="invitation-form">
-        <h2>Invitation images</h2>
-        <div>
-          <label for="invitation-language">Image to replace</label>
-          <select id="invitation-language" name="language">
-            <option value="tamil">Tamil invitation</option>
-            <option value="english">English invitation</option>
-          </select>
-        </div>
-        <div>
-          <label for="invitation-image">New image (PNG; larger images are resized to fit)</label>
-          <input id="invitation-image" name="image" type="file" accept="image/png,.png" required>
-        </div>
-        <button class="button" id="save-invitation" type="submit">Save image to GitHub</button>
-        <img class="image-preview" id="invitation-preview" alt="Selected invitation image preview" hidden>
-        <p class="image-status" id="invitation-status" role="status" aria-live="polite"></p>
-      </form>
+      <section class="invitation-editors" aria-label="Invitation image editors">
+        <form class="panel invitation-editor" data-language="tamil">
+          <h2>Tamil invitation</h2>
+          <div>
+            <label for="invitation-image-tamil">Choose a new PNG (larger images are resized to fit)</label>
+            <input id="invitation-image-tamil" type="file" accept="image/png,.png" required>
+          </div>
+          <div class="image-actions">
+            <button class="button secondary preview-invitation" type="button">Preview</button>
+            <button class="button save-invitation" type="submit" disabled>Save Tamil image to GitHub</button>
+          </div>
+          <img class="image-preview" alt="Tamil invitation preview" hidden>
+          <p class="image-status" role="status" aria-live="polite"></p>
+        </form>
+        <form class="panel invitation-editor" data-language="english">
+          <h2>English invitation</h2>
+          <div>
+            <label for="invitation-image-english">Choose a new PNG (larger images are resized to fit)</label>
+            <input id="invitation-image-english" type="file" accept="image/png,.png" required>
+          </div>
+          <div class="image-actions">
+            <button class="button secondary preview-invitation" type="button">Preview</button>
+            <button class="button save-invitation" type="submit" disabled>Save English image to GitHub</button>
+          </div>
+          <img class="image-preview" alt="English invitation preview" hidden>
+          <p class="image-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
 
       <section class="stats" aria-label="Response totals">
         <article class="stat"><p class="stat-label">Total responses</p><p class="stat-value" id="total-responses">0</p></article>
@@ -182,7 +194,6 @@
     const loginMessage = $("login-message");
     const dashboardMessage = $("dashboard-message");
     let responses = [];
-    let invitationPreviewUrl = "";
 
     async function requestJson(url, options) {
       const response = await fetch(url, { cache: "no-store", ...options });
@@ -314,21 +325,6 @@
     });
 
     $("refresh").addEventListener("click", loadResponses);
-    function updateInvitationPreview() {
-      const file = $("invitation-image").files[0];
-      const preview = $("invitation-preview");
-      if (invitationPreviewUrl) URL.revokeObjectURL(invitationPreviewUrl);
-      invitationPreviewUrl = "";
-      if (file) {
-        invitationPreviewUrl = URL.createObjectURL(file);
-        preview.src = invitationPreviewUrl;
-        preview.hidden = false;
-      } else {
-        preview.removeAttribute("src");
-        preview.hidden = true;
-      }
-    }
-
     async function readInvitationImage(file) {
       const maxBytes = 3 * 1024 * 1024;
       let uploadFile = file;
@@ -369,43 +365,77 @@
       });
     }
 
-    $("invitation-image").addEventListener("change", updateInvitationPreview);
-    $("invitation-form").addEventListener("submit", async event => {
-      event.preventDefault();
-      const file = $("invitation-image").files[0];
-      const status = $("invitation-status");
-      const button = $("save-invitation");
-      status.className = "image-status";
-      if (!file) {
-        status.textContent = "Choose a PNG image to upload.";
-        status.classList.add("error");
-        return;
-      }
-      if (file.type !== "image/png" || file.size > 15 * 1024 * 1024) {
-        status.textContent = "Choose a PNG image no larger than 15 MB.";
-        status.classList.add("error");
-        return;
-      }
+    document.querySelectorAll(".invitation-editor").forEach(editor => {
+      const language = editor.dataset.language;
+      const fileInput = editor.querySelector('input[type="file"]');
+      const previewButton = editor.querySelector(".preview-invitation");
+      const saveButton = editor.querySelector(".save-invitation");
+      const preview = editor.querySelector(".image-preview");
+      const status = editor.querySelector(".image-status");
+      let previewUrl = "";
 
-      button.disabled = true;
-      status.textContent = file.size > 3 * 1024 * 1024
-        ? "Resizing image and committing to GitHub…"
-        : "Committing image to GitHub…";
-      try {
-        const image = await readInvitationImage(file);
-        const result = await requestJson("/api/admin/update-invitation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ language: $("invitation-language").value, image })
-        });
-        status.textContent = `${result.language} invitation committed to GitHub (${result.commit}). Vercel will update the live page after deployment.`;
-        status.classList.add("success");
-      } catch (error) {
-        status.textContent = error.message;
-        status.classList.add("error");
-      } finally {
-        button.disabled = false;
-      }
+      fileInput.addEventListener("change", () => {
+        saveButton.disabled = true;
+        preview.hidden = true;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = "";
+        preview.removeAttribute("src");
+        status.className = "image-status";
+        status.textContent = "";
+      });
+
+      previewButton.addEventListener("click", () => {
+        const file = fileInput.files[0];
+        status.className = "image-status";
+        if (!file) {
+          status.textContent = "Choose a PNG image before previewing.";
+          status.classList.add("error");
+          return;
+        }
+        if (file.type !== "image/png" || file.size > 15 * 1024 * 1024) {
+          status.textContent = "Choose a PNG image no larger than 15 MB.";
+          status.classList.add("error");
+          return;
+        }
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        preview.src = previewUrl;
+        preview.hidden = false;
+        saveButton.disabled = false;
+        status.textContent = "Preview the image below, then save it to GitHub.";
+      });
+
+      editor.addEventListener("submit", async event => {
+        event.preventDefault();
+        const file = fileInput.files[0];
+        status.className = "image-status";
+        if (!file || saveButton.disabled) {
+          status.textContent = "Preview the selected image before saving.";
+          status.classList.add("error");
+          return;
+        }
+        saveButton.disabled = true;
+        previewButton.disabled = true;
+        status.textContent = file.size > 3 * 1024 * 1024
+          ? "Resizing image and committing to GitHub…"
+          : "Committing image to GitHub…";
+        try {
+          const image = await readInvitationImage(file);
+          const result = await requestJson("/api/admin/update-invitation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ language, image })
+          });
+          status.textContent = `${result.language} image committed to GitHub (${result.commit}). Vercel will update the live page after deployment.`;
+          status.classList.add("success");
+        } catch (error) {
+          status.textContent = error.message;
+          status.classList.add("error");
+          saveButton.disabled = false;
+        } finally {
+          previewButton.disabled = false;
+        }
+      });
     });
     $("sync-sheet").addEventListener("click", async () => {
       const button = $("sync-sheet");
